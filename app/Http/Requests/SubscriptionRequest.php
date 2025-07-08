@@ -24,7 +24,6 @@ class SubscriptionRequest extends FormRequest
         return [
             'id_plano' => 'required|integer',
             'id_empresa' => 'required|integer',
-            'data_vencimento' => 'required|date',
             'cupom' => 'nullable|string'
         ];
     }

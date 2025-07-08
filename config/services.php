@@ -37,6 +37,7 @@ return [
 
     'vindi' => [
         'api_key' => env('VINDI_API_KEY'),
+        'public_key' => env('VINDI_PUBLIC_KEY'),
         'base_url' => env('VINDI_API_URL'),
         'token' => env('VINDI_WEBHOOK_TOKEN'),
     ],

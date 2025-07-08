@@ -3,70 +3,64 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SubscriptionRequest;
-use App\Models\Empresa;
-use App\Models\Subscription;
 use App\Services\ApiResponse;
+use App\Services\Erp;
 use App\Services\VindiApi;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
 
 class PaymentsController extends Controller
 {
     // subscriptions
-    public function pix(SubscriptionRequest $request)
+    public function credit_card(SubscriptionRequest $request)
     {
-        $request->validated();
+        $data = [
+            'planCode' => $request->input('id_plano'),
+            'customerCode' => $request->input('id_empresa'),
+        ];
 
-        $next_invoice_at = $request->input('data_vencimento');
-        $coupon_code = $request->input('cupom');
+        $token = Crypt::encrypt($data);
+        $url = url('/payments/checkout?t=' . urlencode($token));
+        return ApiResponse::success('Rota gerada com sucesso.', ['url' => $url]);
+    }
 
-        // pegando id do plano correspondente na Vindi
-        $plan = VindiApi::getPlanByCode($request->input('id_plano'));
-        $plan_id = $plan['id'] ?? null;
+    public function checkout(Request $request)
+    {
+        try {
+            $token = $request->query('t');
+            $data = Crypt::decrypt($token);
+            $planCode = $data['planCode'];
+            $customerCode = $data['customerCode'];
 
-        // pegando o id do cliente correspondente na Vindi
-        $customer = VindiApi::getCustomerByCode($request->input('id_empresa'));
-        $customer_id = $customer['id'] ?? null;
+            // pegando id do plano correspondente na Vindi
+            $plan = VindiApi::getPlanByCode($planCode);
+            $planId = $plan['id'] ?? null;
 
-        if (!$customer_id) {
-            // criando um cliente na Vindi caso não exista
-            $empresa = Empresa::find($request->input('id_empresa'));
+            // pegando o id do cliente correspondente na Vindi
+            $customer = VindiApi::getCustomerByCode($customerCode);
+            $customerId = $customer['id'] ?? null;
 
-            $code = $empresa->id;
-            $name = $empresa->nome;
-            $email = $empresa->email;
-            $address = [
-                'street' => $empresa->rua,
-                'number' => $empresa->numero,
-                'zip_code' => $empresa->cep,
-                'city' => $empresa->cidade->nome,
-                'state' => $empresa->cidade->uf,
-                'country' => 'BR'
-            ];
+            if (!$customerId) {
+                // criando um cliente na Vindi caso não exista
 
-            $customer = VindiApi::createCustomer($code, $name, $email);
+                $customerParams = Erp::makeCustomerParams($customerCode);
+                $customer = VindiApi::createCustomer($customerParams);
 
-            if (!$customer) return ApiResponse::error('Erro ao criar cliente na Vindi.');
-            else $customer_id = $customer['id'];
+                if (!$customer) return ApiResponse::error('Erro ao criar cliente na Vindi.');
+                else $customerId = $customer['id'];
+            }
+
+            $address = ERP::getCustomerAddress($customerCode);
+
+            $response = VindiApi::subscribe($planId, $customerId, $address, 'credit_card');
+            $paymentUrl = $response['bill']['url'];
+
+            if (!empty($paymentUrl)) return redirect()->away($paymentUrl);
+
+            // algo deu errado
+            abort(500, 'Erro ao gerar checkout na Vindi');
+        } catch (\Exception $e) {
+            abort(403, 'Token inválido ou expirado');
         }
-
-        // criando assinatura
-        $response = VindiApi::subscribe($plan_id, $customer_id, $next_invoice_at, 'pix', $coupon_code);
-
-        if (!$response) return ApiResponse::error('Erro ao realizar assinatura.');
-
-        $subscription = $response['subscription'];
-        $subscriptionId = $subscription['id'];
-
-        // buscando a URL última cobrança gerada
-        $response = VindiApi::getInvoice($subscriptionId);
-        if (!$response) return ApiResponse::error('Erro ao buscar faturas da assinatura.');
-
-        $bills = collect($response['bills'])->filter(function ($bill) use ($subscriptionId) {
-            return isset($bill['subscription']['id']) && $bill['subscription']['id'] == $subscriptionId;
-        });
-
-        $lastBill = collect($bills)->sortByDesc('created_at')->first();
-        $paymentURL = $lastBill['url'] ?? null;
-
-        return ApiResponse::success('Assinatura realizada com sucesso.', ['url' => $paymentURL]);
     }
 }

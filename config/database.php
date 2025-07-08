@@ -51,14 +51,14 @@ return [
             ]) : [],
         ],
 
-        'matriza' => [
+        'erp' => [
             'driver' => 'mysql',
             'url' => env('DB_URL'),
-            'host' => env('MATRIZA_DB_HOST', '127.0.0.1'),
-            'port' => env('MATRIZA_DB_PORT', '3306'),
-            'database' => env('MATRIZA_DB_DATABASE', 'laravel'),
-            'username' => env('MATRIZA_DB_USERNAME', 'root'),
-            'password' => env('MATRIZA_DB_PASSWORD', ''),
+            'host' => env('ERP_DB_HOST', '127.0.0.1'),
+            'port' => env('ERP_DB_PORT', '3306'),
+            'database' => env('ERP_DB_DATABASE', 'laravel'),
+            'username' => env('ERP_DB_USERNAME', 'root'),
+            'password' => env('ERP_DB_PASSWORD', ''),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),

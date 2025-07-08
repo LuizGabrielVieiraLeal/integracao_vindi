@@ -9,10 +9,7 @@ use Illuminate\Support\Facades\Route;
 Route::post('/login', [AuthController::class, 'login']);
 
 // payments routes
-Route::prefix('payments')->middleware('auth:sanctum')->controller(PaymentsController::class)->group(function () {
-    Route::post('/pix', 'pix');
-});
+Route::post('/payments/credit_card', [PaymentsController::class, 'credit_card'])->middleware('auth:sanctum');
 
 // feedbacks routes
-Route::post('/webhook/vindi', [WebHookController::class, 'handle'])
-     ->middleware('verify.vindi.token');
+Route::post('/webhook/vindi', [WebHookController::class, 'handle'])->middleware('verify.vindi.token');
