@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Empresa;
-use App\Services\VindiApi;
+use App\Services\Erp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -15,8 +14,12 @@ class WebHookController extends Controller
 
         switch ($event['type']) {
             case 'bill_paid':
-                Log::channel('stderr')->info('Recebi webhook: ' . json_encode($event['data']));
+                $plan = $event['data']['bill']['subscription']['plan'];
+                $customer = $event['data']['bill']['customer'];
+                Erp::updatePlan($customer['code'], $plan['code']);
+                break;
             default:
+                Log::channel('stderr')->info('Requisição recebida: ' . json_encode($request->all()));
                 break;
         }
     }

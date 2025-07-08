@@ -18,10 +18,7 @@ class VerifyVindiWebhookToken
         $token = $request->query('token');
         $validToken = config('services.vindi.token');
 
-        if ($token !== $validToken) {
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-
+        if ($token !== $validToken) return response()->json(['error' => 'Unauthorized'], 401);
         return $next($request);
     }
 }

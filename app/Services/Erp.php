@@ -36,4 +36,6 @@ class Erp
             'country' => 'BR'
         ];
     }
+
+    public static function updatePlan($cutomerCode, $planCode) {}
 }
