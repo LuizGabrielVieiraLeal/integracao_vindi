@@ -15,7 +15,7 @@ class VerifyVindiWebhookToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->query('token'); // pega da URL
+        $token = $request->query('token');
         $validToken = config('services.vindi.token');
 
         if ($token !== $validToken) {
