@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Models\Empresa;
+use App\Models\Plano;
+use App\Models\PlanoEmpresa;
+use Illuminate\Support\Facades\DB;
 
 class Erp
 {
@@ -37,5 +40,16 @@ class Erp
         ];
     }
 
-    public static function updatePlan($cutomerCode, $planCode) {}
+    public static function updatePlan($customerCode, $planCode)
+    {
+        $empresa = Empresa::findOrFail($customerCode);
+        $plano = Plano::findOrFail($planCode);
+
+        PlanoEmpresa::where('empresa_id', $empresa->id)
+            ->update([
+                'plano_id' => $plano->id,
+                'data_expiracao' => DB::raw("DATE_ADD(data_expiracao, INTERVAL {$plano->intervalo_dias} DAY)"),
+                'forma_pagamento' => 'Cartão de crédito'
+            ]);
+    }
 }
