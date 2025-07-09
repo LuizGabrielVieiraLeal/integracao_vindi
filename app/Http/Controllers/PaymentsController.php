@@ -14,11 +14,7 @@ class PaymentsController extends Controller
     // subscriptions
     public function credit_card(SubscriptionRequest $request)
     {
-        $data = [
-            'planCode' => $request->input('id_plano'),
-            'customerCode' => $request->input('id_empresa'),
-        ];
-
+        $data = Erp::makeCheckoutParams($request->input('id_empresa'), $request->input('id_plano'));
         $token = Crypt::encrypt($data);
         $url = url('/payments/checkout?t=' . urlencode($token));
         return ApiResponse::success('Rota gerada com sucesso.', ['url' => $url]);

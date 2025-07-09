@@ -26,6 +26,16 @@ class Erp
         ];
     }
 
+    public static function makeCheckoutParams($customerCode, $planCode)
+    {
+        $empresa = Empresa::find($customerCode);
+
+        return [
+            'customerCode' => $customerCode,
+            'planCode' => $planCode,
+        ];
+    }
+
     public static function getCustomerAddress($code)
     {
         $empresa = Empresa::find($code);
