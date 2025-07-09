@@ -7,13 +7,6 @@ use Illuminate\Support\Facades\Http;
 class VindiApi
 {
     //customers
-    public static function getCustomerById($id)
-    {
-        $response = Http::vindi()->get('/customers/' . $id);
-        if ($response->successful()) return $response->json();
-        else return null;
-    }
-
     public static function getCustomerByCode($code)
     {
         $response = Http::vindi()->get('/customers?query=code:' . $code);
