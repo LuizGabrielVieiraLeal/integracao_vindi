@@ -38,7 +38,6 @@ class PaymentsController extends Controller
 
             if (!$customerId) {
                 // criando um cliente na Vindi caso não exista
-
                 $customerParams = Erp::makeCustomerParams($customerCode);
                 $customer = VindiApi::createCustomer($customerParams);
 
