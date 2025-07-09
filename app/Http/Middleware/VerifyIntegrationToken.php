@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class VerifyVindiWebhookToken
+class VerifyIntegrationToken
 {
     /**
      * Handle an incoming request.
@@ -15,10 +15,11 @@ class VerifyVindiWebhookToken
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $token = $request->query('token');
-        $validToken = config('services.vindi.token');
+        $validToken = config('services.integration.token');
+        $token = $request->header('INTEGRATION_TOKEN') ?? $request->query('token');
 
         if ($token !== $validToken) return response()->json(['error' => 'Unauthorized'], 401);
+
         return $next($request);
     }
 }

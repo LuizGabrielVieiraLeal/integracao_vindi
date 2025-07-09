@@ -1,16 +1,12 @@
 <?php
 
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\PaymentsController;
 use App\Http\Controllers\WebHookController;
-use App\Http\Middleware\VerifyVindiWebhookToken;
+use App\Http\Middleware\VerifyIntegrationToken;
 use Illuminate\Support\Facades\Route;
 
-// auth routes
-Route::post('/login', [AuthController::class, 'login']);
-
 // payments routes
-Route::post('/payments/credit_card', [PaymentsController::class, 'credit_card'])->middleware('auth:sanctum');
+Route::post('/payments/credit_card', [PaymentsController::class, 'credit_card'])->middleware(VerifyIntegrationToken::class);
 
-// feedbacks routes
-Route::post('/webhook/vindi', [WebHookController::class, 'handle'])->middleware(VerifyVindiWebhookToken::class);
+// Vindi feedbacks routes
+Route::post('/webhook/vindi', [WebHookController::class, 'handle'])->middleware(VerifyIntegrationToken::class);

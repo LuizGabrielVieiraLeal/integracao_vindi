@@ -35,10 +35,13 @@ return [
         ],
     ],
 
+    'integration' => [
+        'token' => env('SECRET_KEY'),
+    ],
+
     'vindi' => [
-        'api_key' => env('VINDI_API_KEY'),
         'base_url' => env('VINDI_API_URL'),
-        'token' => env('VINDI_WEBHOOK_TOKEN'),
+        'api_key' => env('VINDI_API_KEY'),
     ],
 
 ];
