@@ -50,15 +50,17 @@ class Erp
         ];
     }
 
-    public static function updatePlan($customerCode, $planCode)
+    public static function updatePlan($idEmpresa, $idPlano)
     {
-        $empresa = Empresa::findOrFail($customerCode);
-        $plano = Plano::findOrFail($planCode);
+        $empresa = Empresa::findOrFail($idEmpresa);
+        $plano = Plano::findOrFail($idPlano);
+
+        $intervalo_dias = $plano->id === 1 ? 15 : 30;
 
         PlanoEmpresa::where('empresa_id', $empresa->id)
             ->update([
                 'plano_id' => $plano->id,
-                'data_expiracao' => DB::raw("DATE_ADD(data_expiracao, INTERVAL {$plano->intervalo_dias} DAY)"),
+                'data_expiracao' => DB::raw("DATE_ADD(NOW(), INTERVAL {$intervalo_dias} DAY)"),
                 'forma_pagamento' => 'Cartão de crédito'
             ]);
     }
