@@ -9,9 +9,9 @@ use Illuminate\Support\Facades\DB;
 
 class Erp
 {
-    public static function makeCustomerParams($code)
+    public static function makeCustomerParams($idEmpresa)
     {
-        $empresa = Empresa::find($code);
+        $empresa = Empresa::find($idEmpresa);
 
         return [
             'code' => $empresa->id,
@@ -26,19 +26,19 @@ class Erp
         ];
     }
 
-    public static function makeCheckoutParams($customerCode, $planCode)
+    public static function makeCheckoutParams($idEmpresa, $idPlano)
     {
-        $empresa = Empresa::find($customerCode);
+        $empresa = Empresa::find($idEmpresa);
 
         return [
-            'customerCode' => $customerCode,
-            'planCode' => $planCode,
+            'customerCode' => $idEmpresa,
+            'planCode' => $idPlano,
         ];
     }
 
-    public static function getCustomerAddress($code)
+    public static function getCustomerAddress($idEmpresa)
     {
-        $empresa = Empresa::find($code);
+        $empresa = Empresa::find($idEmpresa);
 
         return [
             'street' => $empresa->rua,

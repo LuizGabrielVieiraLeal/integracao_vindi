@@ -16,7 +16,7 @@ class VerifyIntegrationToken
     public function handle(Request $request, Closure $next): Response
     {
         $validToken = config('services.integration.token');
-        $token = $request->header('INTEGRATION_TOKEN') ?? $request->query('token');
+        $token = $request->header('INTEGRATION_TOKEN');
 
         if ($token !== $validToken) return response()->json(['error' => 'Unauthorized'], 401);
 

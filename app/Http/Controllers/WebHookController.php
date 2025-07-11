@@ -8,11 +8,14 @@ use Illuminate\Support\Facades\Log;
 
 class WebHookController extends Controller
 {
-    public function handle(Request $request)
+    public function handle(Request $request, $token)
     {
-        $event = $request->input('event');
+        $validToken = config('services.integration.token');
+        if ($token !== $validToken) return response()->json(['error' => 'Unauthorized'], 401);
 
-        if ($event['type'] === 'bill_paid') {
+        $event = $request->input('event') ?? null;
+
+        if ($event && $event['type'] === 'bill_paid') {
             Log::channel('stderr')->info('Requisição recebida: ' . json_encode($request->all()));
             $plan = $event['data']['bill']['subscription']['plan'];
             $customer = $event['data']['bill']['customer'];
