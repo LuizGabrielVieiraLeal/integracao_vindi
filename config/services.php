@@ -36,7 +36,7 @@ return [
     ],
 
     'integration' => [
-        'token' => env('SECRET_KEY'),
+        'token' => env('INTEGRATION_TOKEN'),
     ],
 
     'vindi' => [

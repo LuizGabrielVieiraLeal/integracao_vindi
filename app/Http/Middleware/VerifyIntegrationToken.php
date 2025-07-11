@@ -16,9 +16,17 @@ class VerifyIntegrationToken
     public function handle(Request $request, Closure $next): Response
     {
         $validToken = config('services.integration.token');
-        $token = $request->header('INTEGRATION_TOKEN');
+        $authorizationHeader = $request->header('Authorization');
 
-        if ($token !== $validToken) return response()->json(['error' => 'Unauthorized'], 401);
+        if (!$authorizationHeader || !str_starts_with($authorizationHeader, 'Bearer ')) {
+            return response()->json(['error' => 'Authorization header ausente ou inválido.'], 401);
+        }
+
+        $receivedToken = substr($authorizationHeader, 7);
+
+        if ($receivedToken !== $validToken) {
+            return response()->json(['error' => 'Token inválido.'], 401);
+        }
 
         return $next($request);
     }
