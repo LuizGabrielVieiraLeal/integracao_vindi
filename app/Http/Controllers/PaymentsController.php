@@ -14,7 +14,23 @@ class PaymentsController extends Controller
     // subscriptions
     public function credit_card(SubscriptionRequest $request)
     {
-        $data = Erp::makeCheckoutParams($request->input('id_empresa'), $request->input('id_plano'));
+        $data = Erp::makeCheckoutParams($request->input('id_empresa'), $request->input('id_plano'), 'credit_card');
+        $token = Crypt::encrypt($data);
+        $url = url('/payments/checkout?t=' . urlencode($token));
+        return ApiResponse::success('Rota gerada com sucesso.', ['url' => $url]);
+    }
+
+    public function bank_slip(SubscriptionRequest $request)
+    {
+        $data = Erp::makeCheckoutParams($request->input('id_empresa'), $request->input('id_plano'), 'bank_slip');
+        $token = Crypt::encrypt($data);
+        $url = url('/payments/checkout?t=' . urlencode($token));
+        return ApiResponse::success('Rota gerada com sucesso.', ['url' => $url]);
+    }
+
+    public function pix(SubscriptionRequest $request)
+    {
+        $data = Erp::makeCheckoutParams($request->input('id_empresa'), $request->input('id_plano'), 'pix');
         $token = Crypt::encrypt($data);
         $url = url('/payments/checkout?t=' . urlencode($token));
         return ApiResponse::success('Rota gerada com sucesso.', ['url' => $url]);
@@ -27,6 +43,7 @@ class PaymentsController extends Controller
             $data = Crypt::decrypt($token);
             $planCode = $data['planCode'];
             $customerCode = $data['customerCode'];
+            $paymentMethod = $data['paymentMethod'];
 
             // pegando id do plano correspondente na Vindi
             $plan = VindiApi::getPlanByCode($planCode);
@@ -47,7 +64,7 @@ class PaymentsController extends Controller
 
             $address = ERP::getCustomerAddress($customerCode);
 
-            $response = VindiApi::subscribe($planId, $customerId, $address, 'credit_card');
+            $response = VindiApi::subscribe($planId, $customerId, $address, $paymentMethod);
             $paymentUrl = $response['bill']['url'];
 
             if (!empty($paymentUrl)) return redirect()->away($paymentUrl);

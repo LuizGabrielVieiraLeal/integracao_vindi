@@ -26,13 +26,14 @@ class Erp
         ];
     }
 
-    public static function makeCheckoutParams($idEmpresa, $idPlano)
+    public static function makeCheckoutParams($idEmpresa, $idPlano, $metodo_pgto)
     {
         $empresa = Empresa::find($idEmpresa);
 
         return [
             'customerCode' => $idEmpresa,
             'planCode' => $idPlano,
+            'paymentMethod' => $metodo_pgto,
         ];
     }
 
