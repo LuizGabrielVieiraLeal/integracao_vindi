@@ -20,7 +20,7 @@ class Erp
             'phones' => [
                 [
                     "phone_type" => "mobile",
-                    "number" => $empresa->celular
+                    "number" => trim($empresa->celular)
                 ]
             ]
         ];
