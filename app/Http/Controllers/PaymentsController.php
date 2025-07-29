@@ -22,7 +22,7 @@ class PaymentsController extends Controller
 
     public function bank_slip(SubscriptionRequest $request)
     {
-        $data = Erp::makeCheckoutParams($request->input('id_empresa'), $request->input('id_plano'), 'bank_slip');
+        $data = Erp::makeCheckoutParams($request->input('id_empresa'), $request->input('id_plano'), 'pix_bank_slip');
         $token = Crypt::encrypt($data);
         $url = url('/payments/checkout?t=' . urlencode($token));
         return ApiResponse::success('Rota gerada com sucesso.', ['url' => $url]);
