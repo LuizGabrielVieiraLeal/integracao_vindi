@@ -51,19 +51,51 @@ class Erp
         ];
     }
 
-    public static function updatePlan($idEmpresa, $idPlano, $valor)
+    public static function getPlanDiscounts($planCode)
+    {
+        switch ((int) $planCode) {
+            case 12:
+                return [[
+                    'amount' => 7000, // R$ 70,00 de desconto
+                    'cycles' => 6,     // Aplica por 6 meses
+                    'discount_type' => 'amount',
+                ]];
+                break;
+
+            case 14:
+                $planoEmpresa = PlanoEmpresa::where('empresa_id', $planCode)->first();
+                $ciclos = $planoEmpresa->ciclos ?? null;
+                if (!$ciclos || $ciclos <= 6) {
+                    return [[
+                        'amount' => 7000, // R$ 70,00 de desconto
+                        'cycles' => 1,     // Aplica por 3 meses (trimestre) caso seja até dar 6 meses de desconto
+                        'discount_type' => 'amount',
+                    ]];
+                }
+                break;
+
+            default:
+                return [];
+                break;
+        }
+    }
+
+    public static function updatePlan($idEmpresa, $idPlano, $metodo_pgto)
     {
         $empresa = Empresa::findOrFail($idEmpresa);
         $plano = Plano::findOrFail($idPlano);
-
+        $planoEmpresa = PlanoEmpresa::where('empresa_id', $empresa->id)->first();
+        $ciclos = null;
         $intervaloDias = $plano->id === 1 ? 15 : 30;
 
-        PlanoEmpresa::where('empresa_id', $empresa->id)
-            ->update([
-                'plano_id' => $plano->id,
-                'valor' => $valor,
-                'data_expiracao' => DB::raw("DATE_ADD(data_expiracao, INTERVAL {$intervaloDias} DAY)"),
-                'forma_pagamento' => 'Cartão de crédito'
-            ]);
+        if ($idPlano == $plano->id) $ciclos = $planoEmpresa->ciclos ? $planoEmpresa->ciclos + 1 : 1;
+
+        $planoEmpresa->update([
+            'plano_id' => $plano->id,
+            'ciclos' => $ciclos,
+            'valor' => $plano->valor,
+            'forma_pagamento' => $metodo_pgto,
+            'data_expiracao' => DB::raw("DATE_ADD(data_expiracao, INTERVAL {$intervaloDias} DAY)"),
+        ]);
     }
 }

@@ -30,15 +30,18 @@ class VindiApi
     }
 
     // payments
-    public static function subscribe($plan_id, $customer_id, $address, $payment_method_code, $coupon_code = null)
+    public static function subscribe($plan_id, $customer_id, $address, $payment_method_code, $discounts)
     {
-        $response = Http::vindi()->post('/subscriptions', [
+        $params = [
             'plan_id' => $plan_id,
             'customer_id' => $customer_id,
+            'address' => $address,
             'payment_method_code' => $payment_method_code,
-            'coupon_code' => $coupon_code,
-            'address' => $address
-        ]);
+        ];
+
+        if (!empty($discounts)) $params['discounts'] = $discounts;
+
+        $response = Http::vindi()->post('/subscriptions', $params);
         if ($response->successful()) return $response->json();
         else return null;
     }

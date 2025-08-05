@@ -19,8 +19,8 @@ class WebHookController extends Controller
             Log::channel('stderr')->info('Requisição recebida: ' . json_encode($request->all()));
             $plan = $event['data']['bill']['subscription']['plan'];
             $customer = $event['data']['bill']['customer'];
-            $amount =$bill['amount'] ?? 0;
-            Erp::updatePlan($customer['code'], $plan['code'], $amount);
+            $paymentMethod = $bill['payments'][0]['payment_method']['code'] ?? 'desconhecido';
+            Erp::updatePlan($customer['code'], $plan['code'], $paymentMethod);
         }
     }
 }
