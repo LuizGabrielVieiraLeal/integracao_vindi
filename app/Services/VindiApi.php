@@ -29,17 +29,32 @@ class VindiApi
         else return null;
     }
 
-    // payments
-    public static function subscribe($plan_id, $customer_id, $address, $payment_method_code, $discounts)
+    public static function getProductByCode($code)
     {
+        $response = Http::vindi()->get('/products?query=code:' . $code);
+        if ($response->successful()) return collect($response->json()['products'])->first();
+        else return null;
+    }
+
+    // payments
+    public static function subscribe($plan_id, $plan_code, $customer_id, $payment_method_code, $discounts)
+    {
+        $product = self::getProductByCode($plan_code);
         $params = [
             'plan_id' => $plan_id,
             'customer_id' => $customer_id,
-            'address' => $address,
             'payment_method_code' => $payment_method_code,
+            'product_items' => [
+                [
+                    'product_id' => $product['id'],
+                    // Se tiver desconto, adiciona aqui (veja abaixo)
+                ]
+            ]
         ];
 
-        if (!empty($discounts)) $params['discounts'] = $discounts;
+        if (!empty($discounts)) {
+            $params['product_items'][0]['discounts'] = $discounts;
+        }
 
         $response = Http::vindi()->post('/subscriptions', $params);
         if ($response->successful()) return $response->json();

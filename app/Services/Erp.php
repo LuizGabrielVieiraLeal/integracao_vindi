@@ -31,49 +31,36 @@ class Erp
         $empresa = Empresa::find($idEmpresa);
 
         return [
-            'customerCode' => $idEmpresa,
+            'customerCode' => $empresa->id,
             'planCode' => $idPlano,
             'paymentMethod' => $metodo_pgto,
         ];
     }
 
-    public static function getCustomerAddress($idEmpresa)
+    public static function getPlanDiscounts($planoId, $empresaId)
     {
-        $empresa = Empresa::find($idEmpresa);
-
-        return [
-            'street' => $empresa->rua,
-            'number' => $empresa->numero,
-            'zip_code' => $empresa->cep,
-            'city' => $empresa->cidade->nome,
-            'state' => $empresa->cidade->uf,
-            'country' => 'BR'
-        ];
-    }
-
-    public static function getPlanDiscounts($planCode)
-    {
-        switch ((int) $planCode) {
+        switch ((int) $planoId) {
             case 12:
-                return [[
-                    'amount' => 7000, // R$ 70,00 de desconto
-                    'cycles' => 6,     // Aplica por 6 meses
-                    'discount_type' => 'amount',
-                ]];
-                break;
-
-            case 14:
-                $planoEmpresa = PlanoEmpresa::where('empresa_id', $planCode)->first();
+                $planoEmpresa = PlanoEmpresa::where('empresa_id', $empresaId)->first();
                 $ciclos = $planoEmpresa->ciclos ?? null;
                 if (!$ciclos || $ciclos <= 6) {
                     return [[
-                        'amount' => 7000, // R$ 70,00 de desconto
-                        'cycles' => 1,     // Aplica por 3 meses (trimestre) caso seja até dar 6 meses de desconto
+                        'amount' => 70, // R$ 70,00 de desconto
+                        'cycles' => 6,     // Aplica por 6 meses
                         'discount_type' => 'amount',
                     ]];
-                }
+                } else return [];
+            case 14:
+                $planoEmpresa = PlanoEmpresa::where('empresa_id', $empresaId)->first();
+                $ciclos = $planoEmpresa->ciclos ?? null;
+                if (!$ciclos || $ciclos <= 6) {
+                    return [[
+                        'amount' => 70, // R$ 70,00 de desconto
+                        'cycles' => 3,     // Aplica por 6 meses
+                        'discount_type' => 'amount',
+                    ]];
+                } else return [];
                 break;
-
             default:
                 return [];
                 break;
@@ -88,7 +75,8 @@ class Erp
         $ciclos = null;
         $intervaloDias = $plano->id === 1 ? 15 : 30;
 
-        if ($idPlano == $plano->id) $ciclos = $planoEmpresa->ciclos ? $planoEmpresa->ciclos + 1 : 1;
+        if ($plano->id == $planoEmpresa->plano_id) $ciclos = $planoEmpresa->ciclos ? $planoEmpresa->ciclos + 1 : 1;
+        else $ciclos = 1;
 
         $planoEmpresa->update([
             'plano_id' => $plano->id,

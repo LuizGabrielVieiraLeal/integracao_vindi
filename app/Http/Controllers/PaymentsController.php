@@ -62,10 +62,9 @@ class PaymentsController extends Controller
                 else $customerId = $customer['id'];
             }
 
-            $address = ERP::getCustomerAddress($customerCode);
-            $discounts = ERP::getPlanDiscounts($planCode);
+            $discounts = ERP::getPlanDiscounts($planCode, $customerCode);
 
-            $response = VindiApi::subscribe($planId, $customerId, $address, $paymentMethod, $discounts);
+            $response = VindiApi::subscribe($planId, $planCode, $customerId, $paymentMethod, $discounts);
             $paymentUrl = $response['bill']['url'];
 
             if (!empty($paymentUrl)) return redirect()->away($paymentUrl);
