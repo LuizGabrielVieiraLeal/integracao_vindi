@@ -47,14 +47,11 @@ class VindiApi
             'product_items' => [
                 [
                     'product_id' => $product['id'],
-                    // Se tiver desconto, adiciona aqui (veja abaixo)
                 ]
             ]
         ];
 
-        if (!empty($discounts)) {
-            $params['product_items'][0]['discounts'] = $discounts;
-        }
+        if (!empty($discounts)) $params['product_items'][0]['discounts'] = $discounts;
 
         $response = Http::vindi()->post('/subscriptions', $params);
         if ($response->successful()) return $response->json();

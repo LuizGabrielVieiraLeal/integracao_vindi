@@ -39,7 +39,7 @@ class Erp
 
     public static function getPlanDiscounts($planoId, $empresaId)
     {
-        switch ((int) $planoId) {
+        /* switch ((int) $planoId) {
             case 12:
                 $planoEmpresa = PlanoEmpresa::where('empresa_id', $empresaId)->first();
                 $ciclos = $planoEmpresa->ciclos ?? null;
@@ -64,7 +64,8 @@ class Erp
             default:
                 return [];
                 break;
-        }
+        }*/
+        return [];
     }
 
     public static function updatePlan($idEmpresa, $idPlano, $metodo_pgto)
@@ -73,7 +74,43 @@ class Erp
         $plano = Plano::findOrFail($idPlano);
         $planoEmpresa = PlanoEmpresa::where('empresa_id', $empresa->id)->first();
         $ciclos = null;
-        $intervaloDias = $plano->id === 1 ? 15 : 30;
+        $intervaloDias = null;
+
+        switch ($plano->id) {
+            case 1:
+                $intervaloDias = 15;
+                break;
+            case 2:
+            case 3:
+            case 4:
+            case 14:
+            case 16:
+            case 18:
+            case 22:
+                $intervaloDias = 30;
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 15:
+            case 17:
+            case 19:
+            case 23:
+                $intervaloDias = 90;
+                break;
+            case 8:
+            case 9:
+            case 10:
+            case 12:
+            case 13:
+            case 20:
+            case 21:
+                $intervaloDias = 365;
+                break;
+            default:
+                $intervaloDias = 30;
+                break;
+        }
 
         if ($plano->id == $planoEmpresa->plano_id) $ciclos = $planoEmpresa->ciclos ? $planoEmpresa->ciclos + 1 : 1;
         else $ciclos = 1;
